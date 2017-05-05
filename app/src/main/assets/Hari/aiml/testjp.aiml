@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<aiml>
+<!-- File: testjp.aiml -->
+<!-- Author: Gyaani -->
+<!-- Last modified: April 19, 2017 -->
+<!--  -->
+<!-- This AIML file is part of the Rishi knowledge base. -->
+
+<!-- For more information see http://www.accenture.com -->
+<category><pattern>GREETINGS</pattern>
+<template>????????????????????????</template>
+</category>
+<category><pattern>?????</pattern>
+<template><srai>GREETINGS</srai></template>
+</category>
+</aiml>
