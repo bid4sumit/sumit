@@ -20,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.os.AsyncTask;
@@ -50,6 +51,10 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 public class MainActivity extends AppCompatActivity {
     public static final String MyPREFERENCES = "MyPrefs" ;
+    public int async = 0;
+
+    TableLayout bac;
+
     String abc = "";
     private ListView mListView;
     private static final int REQUEST_CODE = 1234;
@@ -65,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
     private int keyWordCount = 0;
     private String keyWordsFound = "";
     private ArrayList<WebResponse> webServiceResponse;
-    //TextView tv1;
     public int step = 1;
     public WebResponse selectedResponse;
     public String[] questions;
@@ -78,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences.Editor editor1;
     String lucky="off";
     SOAP soapn;
+    SOA soa;
 
 
     //for navigation menu
@@ -92,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         soapn = new SOAP();
+        soa= new SOA();
 
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         editor = sharedpreferences.edit();
@@ -104,9 +110,12 @@ public class MainActivity extends AppCompatActivity {
             editor.commit();
         }*/
 
+
         //for navigation menu
         mDrawerList = (ListView)findViewById(R.id.navList);
         addDrawerItems();
+
+        new Upkey().execute("temp");
 
      /*   String[] items = new String[] {"Menu", "Profile", "Settings", "About Me", "Exit"};
         final List<String> menu_list = new ArrayList<String>(Arrays.asList(items));
@@ -120,9 +129,8 @@ public class MainActivity extends AppCompatActivity {
         speakButton = (Button) findViewById(R.id.speakButton);
         mButtonSend = (Button) findViewById((R.id.sendbutton));
         tv = (EditText) findViewById(R.id.editText);
-        keyWords = getKeyWords();
+
         soap = new SOAPI();
-       // speakButton.setBackground(this.getResources().getDrawable(R.drawable.send));
 
         PackageManager pm = getPackageManager();
         List<ResolveInfo> activities = pm.queryIntentActivities(
@@ -207,7 +215,11 @@ public class MainActivity extends AppCompatActivity {
                     lucky="on";
                     tv7.setText("Feeling lucky on");
 
+                }else if(tv7.getText().toString().equalsIgnoreCase("Reload")) {
+                    Toast.makeText(getApplicationContext(), "Updating data", Toast.LENGTH_SHORT).show();
+                    new Upkey().execute("temp");
                 }
+
 
             }
         });
@@ -262,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void addDrawerItems() {
 
-        String[] osArray = { "Menu", "Profile", "Settings", "About Me","Feeling lucky off", "Logout","Exit" };
+        String[] osArray = { "Menu", "Profile", "Settings", "About Me","Feeling lucky off","Reload","Logout","Exit" };
         dAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, osArray);
         mDrawerList.setAdapter(dAdapter);
     }
@@ -402,40 +414,9 @@ public class MainActivity extends AppCompatActivity {
 
     public ArrayList<String> getKeyWords() {
 
-        //call WebService here to get list of keywords
-        // temporarily hardcoded keywords
+         keyWords = new ArrayList<String>();
 
-        ArrayList keyWords = new ArrayList<String>();
 
-        /*keyWords.add("siebel activation order count");
-        keyWords.add("siebel activation order");
-        keyWords.add("siebel order status");
-        keyWords.add("activation order");
-        keyWords.add("ccs id for msisdn");
-        keyWords.add("ocs id for msisdn");
-        keyWords.add("order completed");
-        keyWords.add("name of apn");
-        keyWords.add("shipment status");
-        keyWords.add("shipping status");
-        keyWords.add("order status");
-        keyWords.add("task count");
-        keyWords.add("service type");
-        keyWords.add("type of service");
-        keyWords.add("order created");
-        keyWords.add("order type");
-        keyWords.add("apn name");
-        keyWords.add("status");
-        keyWords.add("count");
-        keyWords.add("task");
-        keyWords.add("ccs id");
-        keyWords.add("ocs id");
-        keyWords.add("msisdn");
-        keyWords.add("service");
-        keyWords.add("order");
-        keyWords.add("iccid");
-        keyWords.add("apn");
-        keyWords.add("ocs");
-        keyWords.add("ccs");*/
         keyWords.add("predictive");
         keyWords.add("activation");
         keyWords.add("completed");
@@ -455,117 +436,125 @@ public class MainActivity extends AppCompatActivity {
         keyWords.add("ccs");
         keyWords.add("apn");
         keyWords.add("id");
-
-
-      /*keyWords.add("siebel activation order count");
-        keyWords.add("siebel activation order");
-        keyWords.add("siebel order status");
-        keyWords.add("activation order");
-        keyWords.add("shipment status");
-        keyWords.add("shipping status");
-        keyWords.add("order status");
-        keyWords.add("order created");
-        keyWords.add("status");
-        keyWords.add("order");
-        */
+        keyWords.add("alternate number");
+        keyWords.add("mah");
+        keyWords.add("master account holder");
+        keyWords.add("m a h");
+        keyWords.add("mh");
+        keyWords.add("number");
+        keyWords.add("alternate");
+        keyWords.add("account privilege");
+        keyWords.add("account privileges");
 
         return keyWords;
     }
 
     public void voiceFn(String msg) {
 
-
-        if (TextUtils.isEmpty(msg)) {
-            return;
+        if(msg.toLowerCase().contains("stop")||msg.toLowerCase().contains("terminate"))
+        {
+            sendMessage(msg);
+            tv.setText("");
+            reset_rishi();
+            mimicOtherMessage("Request has been cancelled");
+            t1.speak("Request has been cancelled", TextToSpeech.QUEUE_FLUSH, null);
         }
-
-        sendMessage(msg);
-        System.out.print("\n\ninside fn just message\n\n");
-        System.out.print(web);
-        if (web == false) {
-
-            for (int i = 0; i < keyWords.size(); i++) {
-                if (msg.toLowerCase().contains(keyWords.get(i))) {
-                    if(keyWordCount==0)
-                    {
-                        keyWordsFound = keyWords.get(i);
-                    }else {
-                        keyWordsFound = keyWordsFound + "," + keyWords.get(i);
-                    }
-                    System.out.println("\n\n\n" + keyWordsFound);
-                    System.out.print("\n\n\n\n");
-
-                    keyWordCount++;
-
-                }
+        else {
+            if (TextUtils.isEmpty(msg)) {
+                return;
             }
-           // sendMessage("Keywords found"+keyWordsFound);
 
-            if (keyWordCount != 0) {
-               // sendMessage("Keywords found"+keyWordsFound);
-                // webServiceResponse = WebServiceResponseDemo(keyWordsFound, msg);
+            sendMessage(msg);
+            System.out.print("\n\ninside fn just message\n\n");
+            System.out.print(web);
+            if (web == false) {
 
-                //resp = "which of the below queries you want to perform \n ";
+                for (int i = 0; i < keyWords.size(); i++) {
+                    if (msg.toLowerCase().contains(keyWords.get(i))) {
+                        if (keyWordCount == 0) {
+                            keyWordsFound = keyWords.get(i);
+                        } else {
+                            keyWordsFound = keyWordsFound + "," + keyWords.get(i);
+                        }
+                        System.out.println("\n\n\n" + keyWordsFound);
+                        System.out.print("\n\n\n\n");
+
+                        keyWordCount++;
+                        if (async == 1) {
+                            async = 2;
+                        }
+                    }
+                }
+
+                // sendMessage("Keywords found"+keyWordsFound);
+
+                if (keyWordCount != 0) {
+                    // sendMessage("Keywords found"+keyWordsFound);
+                    // webServiceResponse = WebServiceResponseDemo(keyWordsFound, msg);
+
+                    //resp = "which of the below queries you want to perform \n ";
               /* mimicOtherMessage(resp);
                 for (int i = 0; i < webServiceResponse.size(); i++) {
                     mimicOtherMessage(webServiceResponse.get(i).getName());
                 }*/
 
-                new MyTask().execute(msg);
+                    new MyTask().execute(msg);
 
 
-                step = 2;
-                web = true;
+                    step = 2;
+                    web = true;
 
-            } else {
-                resp = chat.multisentenceRespond(msg);
-                mimicOtherMessage(resp);
-                t1.speak(resp, TextToSpeech.QUEUE_FLUSH, null);
-                mListView.setSelection(mAdapter.getCount() - 1);
-            }
+                } else {
+                    resp = chat.multisentenceRespond(msg);
+                    mimicOtherMessage(resp);
+                    t1.speak(resp, TextToSpeech.QUEUE_FLUSH, null);
+                    mListView.setSelection(mAdapter.getCount() - 1);
+                }
 
           /*  for(int i=0;i<webServiceResponse.size();i++)
             {
                 mimicOtherMessage(webServiceResponse.get(i).getName());
             }*/
 
-            mListView.setSelection(mAdapter.getCount() - 1);
-            msg = "";
-            tv.setText("");
-        } else {
-            if (selectedResponse == null) {
-                Toast.makeText(getApplicationContext(), "Please Select an action", Toast.LENGTH_LONG).show();
+                mListView.setSelection(mAdapter.getCount() - 1);
+                msg = "";
+                tv.setText("");
             } else {
-
-                if (questions.length != 0 && qstncount != 0 && qstncount < questions.length - 1) {
-
-
-                    if (answer.equals("empty")) {
-                        step = 3;
-                        answer = msg;
-
-                    } else {
-                        step = 3;
-                        answer = answer + "," + msg;
-                    }
-
-                    mimicOtherMessage(questions[qstncount]);
-                    mListView.setSelection(mAdapter.getCount() - 1);
-                    qstncount++;
-
+                if (selectedResponse == null) {
+                    Toast.makeText(getApplicationContext(), "Please Select an action", Toast.LENGTH_LONG).show();
                 } else {
-                    if (answer.equals("empty")) {
-                        step = 3;
-                        answer = msg;
-                    } else {
-                        step = 3;
-                        answer = answer + "," + msg;
-                    }
 
-                    mimicOtherMessage(" Crawling through data please wait ..! ");
-                    t1.speak("Crawling through data please wait", TextToSpeech.QUEUE_FLUSH, null);
-                    mListView.setSelection(mAdapter.getCount() - 1);
-                    new MyTask2().execute("temp");
+                    if (questions.length != 0 && qstncount != 0 && qstncount < questions.length - 1) {
+
+
+                        if (answer.equals("empty")) {
+                            step = 3;
+                            answer = msg;
+
+                        } else {
+                            step = 3;
+                            answer = answer + "," + msg;
+                        }
+
+                        mimicOtherMessage(questions[qstncount]);
+                        mListView.setSelection(mAdapter.getCount() - 1);
+                        qstncount++;
+
+                    } else {
+                        if (answer.equals("empty")) {
+                            step = 3;
+                            answer = msg;
+                        } else {
+                            step = 3;
+                            answer = answer + "," + msg;
+                        }
+
+                        mimicOtherMessage(" Crawling through data please wait ..! ");
+                        t1.speak("Crawling through data please wait", TextToSpeech.QUEUE_FLUSH, null);
+                        mListView.setSelection(mAdapter.getCount() - 1);
+
+                        if (async == 0)
+                            new MyTask2().execute("temp");
                   /*  qstncount = 0;
                     questions = null;
                     selectedResponse = null;
@@ -574,12 +563,27 @@ public class MainActivity extends AppCompatActivity {
                     keyWordsFound = " ";
                     step = 1;
                     web = false;*/
+                    }
                 }
+                msg = "";
+                tv.setText("");
             }
-            msg = "";
-            tv.setText("");
         }
 
+    }
+
+    public void reset_rishi(){
+        qstncount = 0;
+        questions = null;
+        selectedResponse = null;
+        webServiceResponse = null;
+        keyWordCount = 0;
+        keyWordsFound = " ";
+        step = 1;
+        web = false;
+        answer = "empty";
+        async=1;
+        msg = "";
     }
 
     public ArrayList<WebResponse> WebServiceResponseDemo(String text) {
@@ -590,8 +594,8 @@ public class MainActivity extends AppCompatActivity {
             String msg = text;
             DocumentBuilder newDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(msg.getBytes()));
-//System.out.println(parse.getFirstChild().getTextContent());
-            NodeList nList = parse.getElementsByTagName("return");
+            //System.out.println(parse.getFirstChild().getTextContent());
+            NodeList nList = parse.getElementsByTagName("ns:return");
             for (int temp = 0; temp < nList.getLength(); temp++) {
                 Node nNode = nList.item(temp);
                 System.out.println("\nCurrent Element :"
@@ -599,10 +603,10 @@ public class MainActivity extends AppCompatActivity {
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element eElement = (Element) nNode;
                     WebResponse temp1 = new WebResponse();
-                    temp1.setEnv(eElement.getElementsByTagName("env").item(0).getTextContent());
-                    temp1.setId(eElement.getElementsByTagName("id").item(0).getTextContent());
-                    temp1.setName(eElement.getElementsByTagName("nameOfInfoRequired").item(0).getTextContent());
-                    temp1.setQuestions(eElement.getElementsByTagName("parametersOfInfoRequired").item(0).getTextContent());
+                    temp1.setEnv(eElement.getElementsByTagName("ax21:env").item(0).getTextContent());
+                    temp1.setId(eElement.getElementsByTagName("ax21:id").item(0).getTextContent());
+                    temp1.setName(eElement.getElementsByTagName("ax21:nameOfInfoRequired").item(0).getTextContent());
+                    temp1.setQuestions(eElement.getElementsByTagName("ax21:parametersOfInfoRequired").item(0).getTextContent());
                     if(access.contains(temp1.getEnv()) || access.contains("all"))
                     tempResponse.add(temp1);
 
@@ -670,15 +674,16 @@ public class MainActivity extends AppCompatActivity {
 
             String myString = params[0];
             System.out.print("\ninside asy task1\n ");
-            String temp = soapn.getWeb2();
+            String temp = soa.getWeb2();
 
             temp = temp.replace("value111", msg);
             temp = temp.replace("value222", keyWordsFound);
             resp = temp;
             abc = temp;
-            resp = soapn.IB_Retrigger_Fire_IB(abc);
+            resp = soa.IB_Retrigger_Fire_IB(abc);
             //  mimicOtherMessage(resp);
             resp=resp.replace(" xmlns:ns2=\"http://fmw.vodacom.com/\"","");
+            resp=resp.replace("xsi:type=\"ax21:FirstInteractionWithBotBasic\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"","");
 
             return resp;
         }
@@ -708,7 +713,12 @@ public class MainActivity extends AppCompatActivity {
                 keyWordCount = 0;
                 keyWordsFound = "";
             }
-            if (webServiceResponse.size() > 0&& lucky.contains("off")){
+            if(webServiceResponse.size() ==1)
+            {
+                mimicOtherMessage(webServiceResponse.get(0).getName());
+                selectQuery(webServiceResponse.get(0).getName());
+            }
+            else if (webServiceResponse.size() > 0&& lucky.contains("off")){
                 mimicOtherMessage("Which of the following action do you want to perform ? ");
                 t1.speak("Which of the following action do you want to perform ? ", TextToSpeech.QUEUE_FLUSH, null);
                 for (int i = 0; i < webServiceResponse.size(); i++) {
@@ -747,8 +757,8 @@ public class MainActivity extends AppCompatActivity {
         // Runs in UI before background thread is called
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
 
+            super.onPreExecute();
             // Do something like display a progress bar
         }
 
@@ -760,15 +770,28 @@ public class MainActivity extends AppCompatActivity {
             String myString = params[0];
             System.out.print("inside asy task 2" + myString);
 
-            String temp = soap.getWeb3();
+            String temp = soa.getWeb4();
             temp = temp.replace("value1234", selectedResponse.getId());
             temp = temp.replace("value2234", answer);
 
-            resp = soap.IB_Retrigger_Fire_IB(temp);
+            qstncount = 0;
+            questions = null;
+            selectedResponse = null;
+            webServiceResponse = null;
+            keyWordCount = 0;
+            keyWordsFound = " ";
+            step = 1;
+            web = false;
+            answer = "empty";
+            async=1;
+
+
+            resp = soa.IB_Retrigger_Fire_IB(temp);
 
             // String temp = soap.getWeb3();;
             // resp = soap.IB_Retrigger_Fire_IB(temp);
             //  mimicOtherMessage(resp);
+
 
             return resp;
         }
@@ -791,26 +814,76 @@ public class MainActivity extends AppCompatActivity {
                 String msg1 = result;
                 DocumentBuilder newDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(msg1.getBytes()));
-                NodeList nList = parse.getElementsByTagName("client:Output");
+                NodeList nList = parse.getElementsByTagName("ns:return");
                 for (int temp = 0; temp < nList.getLength(); temp++) {
                     Node nNode = nList.item(temp);
                     System.out.println("\nCurrent Element :"
                             + nNode.getNodeName());
                     if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element eElement = (Element) nNode;
-                        count = eElement.getElementsByTagName("client:output3").item(0).getTextContent();
+                        count = eElement.getElementsByTagName("ax21:columnSize").item(0).getTextContent();
                         if(count==null||count.equalsIgnoreCase("")||count.equalsIgnoreCase(" "))
                         {
                             mimicOtherMessage(" Sorry ! \n Cannot find anything  ");
-                        }else {
-                            mimicOtherMessage(count);
-                            t1.speak(count, TextToSpeech.QUEUE_FLUSH, null);
+                            mListView.setSelection(mAdapter.getCount() - 1);
+                        }else if(count.equalsIgnoreCase("1")){
+
+                            String webFinalAns = eElement.getElementsByTagName("ax21:list").item(0).getTextContent();
+                            mimicOtherMessage(webFinalAns);
+                            t1.speak(webFinalAns, TextToSpeech.QUEUE_FLUSH, null);
+                            mListView.setSelection(mAdapter.getCount() - 1);
+                        }else
+                        {
+                            String rownameBycomma = eElement.getElementsByTagName("ax21:counmnNames").item(0).getTextContent();
+                            String rowEl[] = rownameBycomma.split(",");
+                            //String display = rowEl[0];
+
+                            NodeList abcde = eElement.getElementsByTagName("ax21:list");
+
+
+                            ArrayList<String> rowData = new ArrayList<String>();
+
+                            for(int n=0;n<abcde.getLength();n++)
+                            {
+                                rowData.add(abcde.item(n).getTextContent());
+
+                            }
+
+
+                           // Intent i = new Intent(MainActivity.this,TabV.class);
+                           // i.putExtra("colnames",rowEl);
+                           // i.putExtra("rowdata",rowData);
+
+                            String[] rowd= new String[rowData.size()];
+                            rowData.toArray(rowd);
+
+                            Toast.makeText(getApplicationContext(), "row length "+rowd.length, Toast.LENGTH_LONG).show();
+
+                            // String[] rowd = {"a,b","c,d"};
+
+                            try{
+                            ChatMessage chatMessage = new ChatMessage(rownameBycomma,rowd, true, true);
+                            mAdapter.add(chatMessage);}
+                            catch(Exception e)
+                            {
+                                Toast.makeText(getApplicationContext(), "during chatmessgae "+e.toString(), Toast.LENGTH_LONG).show();
+                            }
+
+                            //startActivity(i);
+                           /* mimicOtherMessage(display);
+                            mListView.setSelection(mAdapter.getCount() - 1);*/
+
                         }
+
+
                         mListView.setSelection(mAdapter.getCount() - 1);
                     }
 
                     mListView.setSelection(mAdapter.getCount() - 1);
-                    qstncount = 0;
+
+                }
+
+                   /* qstncount = 0;
                     questions = null;
                     selectedResponse = null;
                     webServiceResponse = null;
@@ -818,13 +891,102 @@ public class MainActivity extends AppCompatActivity {
                     keyWordsFound = " ";
                     step = 1;
                     web = false;
-                    answer = "empty";
-                }
+                    answer = "empty";*/
+
             } catch (Exception e) {
                 e.printStackTrace();
+
             }
+            if(async==2)
+            {
+                new MyTask2().execute("temp");
+
+            }
+            if(async==1){
+                async = 0;}
         }
     }
+
+    private class Upkey extends AsyncTask<String, Integer, String> {
+
+        // Runs in UI before background thread is called
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+            // Do something like display a progress bar
+        }
+
+        // This is run in a background thread
+        @Override
+        protected String doInBackground(String... params) {
+
+            // get the string from params, which is an array
+
+            String temp = soa.getWeb3();
+
+            resp = temp;
+            abc = temp;
+            resp = soa.IB_Retrigger_Fire_IB(abc);
+            //  mimicOtherMessage(resp);
+            resp=resp.replace(" xmlns:ns2=\"http://fmw.vodacom.com/\"","");
+            resp=resp.replace("xsi:type=\"ax21:FirstInteractionWithBotBasic\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"","");
+
+            return resp;
+        }
+
+        // This is called from background thread but runs in UI
+
+        @Override
+        protected void onProgressUpdate(Integer... values) {
+            super.onProgressUpdate(values);
+
+            // Do things like update the progress bar
+        }
+
+        // This runs in UI when background thread finishes
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+
+            String keyword111= "";
+
+            try {
+
+                String msg =result;
+                DocumentBuilder newDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(msg.getBytes()));
+                //System.out.println(parse.getFirstChild().getTextContent());
+                NodeList nList = parse.getElementsByTagName("ns:return");
+                for (int temp = 0; temp < nList.getLength(); temp++) {
+                    Node nNode = nList.item(temp);
+                    //    System.out.println("\nCurrent Element :"
+                    //           + nNode.getNodeName());
+                    System.out.println(nList.getLength());
+                    System.out.println(""+nNode.getFirstChild().getTextContent());
+                    if(temp<nList.getLength()-1)
+                        keyword111= keyword111+nNode.getFirstChild().getTextContent()+",";
+                    else
+                        keyword111= keyword111+nNode.getFirstChild().getTextContent();
+
+                }
+            }catch(Exception e)
+            {
+
+            }
+            String ttt[]=keyword111.split(",");
+            keyWords = new ArrayList<String>();
+            for(int i = 0;i<ttt.length;i++)
+            {
+                keyWords.add(ttt[i]);
+               // mimicOtherMessage(ttt[i]);
+            }
+
+            mListView.setSelection(mAdapter.getCount() - 1);
+        }
+    }
+
 
 }
 
