@@ -30,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView tvv;
     SharedPreferences.Editor editor;
     SOAP soap;
+    SOA soa;
     SharedPreferences sharedpreferences;
 
 
@@ -40,6 +41,7 @@ public class LoginActivity extends AppCompatActivity {
         sharedpreferences = getSharedPreferences(MyPREFERENCES, Context.MODE_PRIVATE);
         editor = sharedpreferences.edit();
         soap = new SOAP();
+        soa = new SOA();
         final Intent i = new Intent(LoginActivity.this, MainActivity.class);
         mEmailView = (EditText) findViewById(R.id.username);
 
@@ -100,12 +102,12 @@ public class LoginActivity extends AppCompatActivity {
             System.out.print("username" +username);
             System.out.print("password "+password);
 
-            String temp = soap.getWeb1();
+            String temp = soa.getWeb1();
             temp = temp.replace("value1234", username);
             temp = temp.replace("value2234", password);
             System.out.print("xml is \n" +temp);
 
-            String resp = soap.IB_Retrigger_Fire_IB(temp);
+            String resp = soa.IB_Retrigger_Fire_IB(temp);
 
             System.out.print("response is  \n" +resp);
 
@@ -141,14 +143,14 @@ public class LoginActivity extends AppCompatActivity {
                 String msg1 = result;
                 DocumentBuilder newDocumentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
                 Document parse = newDocumentBuilder.parse(new ByteArrayInputStream(msg1.getBytes()));
-                NodeList nList = parse.getElementsByTagName("ns2:loginFilterResponse");
+                NodeList nList = parse.getElementsByTagName("ns:loginFilterResponse");
                 for (int temp = 0; temp < nList.getLength(); temp++) {
                     Node nNode = nList.item(temp);
                     System.out.println("\nCurrent Element :"
                             + nNode.getNodeName());
                     if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                         Element eElement = (Element) nNode;
-                        count = eElement.getElementsByTagName("return").item(0).getTextContent();                }
+                        count = eElement.getElementsByTagName("ns:return").item(0).getTextContent();                }
                     System.out.print("Parsed Response is  \n" +count);
 
                         }

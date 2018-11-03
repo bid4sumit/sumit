@@ -1,5 +1,7 @@
 package com.hariofspades.chatbot;
 
+import android.widget.TableLayout;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -9,68 +11,65 @@ import java.net.URLConnection;
 import java.util.Properties;
 
 /**
+ * Created by sumit.bx.kumar on 11-05-2017.
+ */
+
+
+
+
+/**
  * Created by sumit.bx.kumar on 07-04-2017.
  */
 
-public class SOAP {
+public class SOA {
 
-    public String web1 = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:fmw=\"http://fmw.vodacom.com/\">\n" +
-            "   <soap:Header/>\n" +
-            "   <soap:Body>\n" +
+
+
+    public String web1="<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:fmw=\"http://fmw.vodacom.com\">\n" +
+            "   <soapenv:Header/>\n" +
+            "   <soapenv:Body>\n" +
             "      <fmw:loginFilter>\n" +
             "         <!--Optional:-->\n" +
-            "         <arg0>value1234</arg0>\n" +
+            "         <fmw:args0>value1234</fmw:args0>\n" +
             "         <!--Optional:-->\n" +
-            "         <arg1>value2234</arg1>\n" +
+            "         <fmw:args1>value2234</fmw:args1>\n" +
             "      </fmw:loginFilter>\n" +
-            "   </soap:Body>\n" +
-            "</soap:Envelope>";
+            "   </soapenv:Body>\n" +
+            "</soapenv:Envelope>";
 
-    public String web2 = "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:fmw=\"http://fmw.vodacom.com/\">\n" +
-            "   <soap:Header/>\n" +
-            "   <soap:Body>\n" +
+    public String web2="<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:fmw=\"http://fmw.vodacom.com\">\n" +
+            "   <soapenv:Header/>\n" +
+            "   <soapenv:Body>\n" +
             "      <fmw:firstInteractionWithBotMore>\n" +
             "         <!--Optional:-->\n" +
-            "         <arg0>value111</arg0>\n" +
+            "         <fmw:args0>value111</fmw:args0>\n" +
             "         <!--Optional:-->\n" +
-            "         <arg1>value222</arg1>\n" +
+            "         <fmw:args1>value222</fmw:args1>\n" +
             "      </fmw:firstInteractionWithBotMore>\n" +
-            "   </soap:Body>\n" +
-            "</soap:Envelope>";
-
-    /*public String web3="<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-            "    \t<soap:Body>\n" +
-            "        \t\t<ns1:process xmlns:ns1=\"http://xmlns.oracle.com/CUR/AndroidBOTInteraction/BPELProcess1\">\n" +
-            "            \t\t\t<ns1:opCode>LastInteractionBOT</ns1:opCode>\n" +
-            "            \t\t\t<ns1:input1>501</ns1:input1>\n" +
-            "            \t\t\t<ns1:input2>yesterday,today</ns1:input2>\n" +
-            "        </ns1:process>\n" +
-            "    </soap:Body>\n" +
-            "</soap:Envelope>n";*/
-
-    public String web3 = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-            "    \t<soap:Body>\n" +
-            "        \t\t<ns1:process xmlns:ns1=\"http://xmlns.oracle.com/CUR/AndroidBOTInteraction/BPELProcess1\">\n" +
-            "            \t\t\t<ns1:opCode>LastInteractionBOT</ns1:opCode>\n" +
-            "            \t\t\t<ns1:input1>value1234</ns1:input1>\n" +
-            "            \t\t\t<ns1:input2>value2234</ns1:input2>\n" +
-            "        </ns1:process>\n" +
-            "    </soap:Body>\n" +
-            "</soap:Envelope>\n";
+            "   </soapenv:Body>\n" +
+            "</soapenv:Envelope>";
 
 
-    public String web4 = "<soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n" +
-            "    \t<soap:Body>\n" +
-            "        \t\t<ns1:process xmlns:ns1=\"http://xmlns.oracle.com/CUR/AndroidBOTInteraction/BPELProcess1\">\n" +
-            "            \t\t\t<ns1:opCode>LastInteractionBOT</ns1:opCode>\n" +
-            "            \t\t\t<ns1:input1>501</ns1:input1>\n" +
-            "            \t\t\t<ns1:input2>yesterday,toda</ns1:input2>\n" +
-            "        </ns1:process>\n" +
-            "    </soap:Body>\n" +
-            "</soap:Envelope>\n";
 
-    public String login_xml = "";
+    public  String web3="<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:fmw=\"http://fmw.vodacom.com\">\n" +
+            "   <soapenv:Header/>\n" +
+            "   <soapenv:Body>\n" +
+            "      <fmw:voiceToTextKeywords/>\n" +
+            "   </soapenv:Body>\n" +
+            "</soapenv:Envelope>";
 
+
+    public  String web4="<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:fmw=\"http://fmw.vodacom.com\">\n" +
+            "   <soapenv:Header/>\n" +
+            "   <soapenv:Body>\n" +
+            "      <fmw:LastInteractionWithBot>\n" +
+            "         <!--Optional:-->\n" +
+            "         <fmw:args0>value1234</fmw:args0>\n" +
+            "         <!--Optional:-->\n" +
+            "         <fmw:args1>value2234</fmw:args1>\n" +
+            "      </fmw:LastInteractionWithBot>\n" +
+            "   </soapenv:Body>\n" +
+            "</soapenv:Envelope>";
 
     public String IB_Retrigger_Fire_IB(String xml) {
 
@@ -83,9 +82,8 @@ public class SOAP {
 
             //path = dbProp.getProperty("IB.pathSoap");
 
-         /*   URL url = new URL("http://dfmw001zatcrh.vodacom.corp:8001/AndroidWebService-Project1-context-root/FmwSOAOSBOperationSoap12HttpPort");
-*/
             URL url = new URL("http://duim001zatcrh.vodacom.corp:8080/FMWWebService/services/FmwSOAOSBOperation.FmwSOAOSBOperationHttpSoap11Endpoint/");
+
             System.out.println("URL is :" + url);
 
             URLConnection connection = url.openConnection();
@@ -99,7 +97,7 @@ public class SOAP {
             byte[] b = req.getBytes();
 
             //httpcon.setRequestProperty("Content-Length", String.valueOf(500));
-            httpcon.setRequestProperty("Content-Type", "application/soap+xml;charset=utf-8");
+            httpcon.setRequestProperty("Content-Type", "text/xml;charset=UTF-8");
             httpcon.setRequestProperty("SOAPAction", "");
             httpcon.setRequestMethod("POST");
             httpcon.setDoOutput(true);
@@ -127,7 +125,7 @@ public class SOAP {
                     sb.append(line);
                 }
 
-                System.out.println("*******!!!!!!!!!THe SAOPXML RESPONSE IS HERE !!!!!******\n" + sb.toString() + "\n\n\n!!!!!!!!!!!!!!!!\n\n");
+                System.out.println("*******!!!!!!!!!THe SAOPXML RESPONSE IS HERE !!!!!******\n"+sb.toString()+"\n\n\n!!!!!!!!!!!!!!!!\n\n");
 
                 return sb.toString();
 
@@ -186,6 +184,8 @@ public class SOAP {
     public void setWeb3(String web3) {
         this.web3 = web3;
     }
+
+
 
 
     public String getWeb4() {
